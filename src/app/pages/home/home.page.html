@@ -22,15 +22,20 @@
                     </div>
                 </div>
 
-                <div class="status-pill" [class.connected]="connectionStatus === 'Conectado'">
+                <div class="status-pill" [class.connected]="connectionStatus === CarConnectionState.Connected">
                     <ion-icon name="radio-button-on"></ion-icon>
                     <span>{{ connectionStatus }}</span>
                 </div>
             </div>
 
-            <ion-button expand="block" class="connect-button" (click)="connect()">
+            <ion-button [disabled]="!DisableButtonByConnectionStatus()" expand="block" class="connect-button" (click)="connect()">
                 <ion-icon class="connect-icon" slot="start" name="bluetooth"></ion-icon>
                 <span class="connect-label">Conectar dispositivo</span>
+            </ion-button>
+
+            <ion-button [disabled]="DisableButtonByConnectionStatus()" expand="block" class="connect-button" (click)="disconnect()">
+                <ion-icon class="connect-icon" slot="start" name="bluetooth"></ion-icon>
+                <span class="connect-label">Desconectar dispositivo</span>
             </ion-button>
         </section>
 
@@ -38,21 +43,22 @@
             <div class="section-header compact">
                 <div class="section-title">
                     <ion-icon name="car-sport"></ion-icon>
-                    <div>
+                    <div class="control-status-info">
                         <h2>Control de movimiento</h2>
                         <p>Último comando: {{ lastCommand }}</p>
+                        <p>Payload: {{ lastPayload }}</p>
                     </div>
                 </div>
             </div>
 
             <div class="power-mode-row">
-                <button class="power-mode-btn" [class.active]="powerMode === 'normal'" (click)="setPowerMode('normal')">
+                <button class="power-mode-btn" [class.active]="powerMode === PowerMode.Normal" (click)="setPowerMode(PowerMode.Normal)">
                     <ion-icon name="leaf"></ion-icon>
                     <span>Modo normal</span>
                 </button>
 
-                <button class="power-mode-btn sport" [class.active]="powerMode === 'sport'"
-                    (click)="setPowerMode('sport')">
+                <button class="power-mode-btn sport" [class.active]="powerMode === PowerMode.Sport"
+                    (click)="setPowerMode(PowerMode.Sport)">
                     <ion-icon name="flash"></ion-icon>
                     <span>Modo Sport</span>
                 </button>
@@ -104,8 +110,9 @@
                         <span>Reubicar</span>
                     </button>
 
-                    <button class="stop-wide-btn" (pointerdown)="stopAll($event)"
-                        (contextmenu)="$event.preventDefault()">
+                    <button class="stop-wide-btn" [class.active]="brakeActive" (pointerdown)="startBrake($event)"
+                        (pointerup)="endBrake($event)" (pointercancel)="endBrake($event)"
+                        (pointerleave)="endBrake($event)" (contextmenu)="$event.preventDefault()">
                         <ion-icon name="stop-circle"></ion-icon>
                         <span>STOP</span>
                     </button>
