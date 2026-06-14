@@ -1,0 +1,7 @@
+{
+  "name": "carrito-control",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
