@@ -1,0 +1,653 @@
+.control-page {
+  --background: #eef1f5;
+  color: #1d2430;
+}
+
+.page-content {
+  padding: 18px;
+}
+
+.card {
+  background: #ffffff;
+  color: #1d2430;
+  border-radius: 28px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 28px rgba(26, 33, 43, 0.12);
+  border: 1px solid rgba(25, 31, 40, 0.08);
+}
+
+.app-banner {
+  width: 100%;
+  background: linear-gradient(135deg, #4e545c, #2f343a);
+  color: #ffffff;
+  padding: 22px 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  ion-icon {
+    font-size: 42px;
+    color: #ffffff;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    color: #ffffff;
+  }
+
+  p {
+    margin: 3px 0 0;
+    font-size: 13px;
+    opacity: 0.82;
+    color: #ffffff;
+  }
+}
+
+.connection-card {
+  min-height: 170px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+
+  &.compact {
+    margin-bottom: 16px;
+  }
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 32px;
+    color: #3d4652;
+  }
+
+  h2 {
+    margin: 0;
+    color: #1d2430;
+    font-size: 21px;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: #737b87;
+    font-size: 13px;
+  }
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f2f4;
+  color: #68707c;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+
+  ion-icon {
+    font-size: 14px;
+    color: #a1a8b3;
+  }
+
+  &.connected {
+    background: #e8f8ef;
+    color: #14783d;
+
+    ion-icon {
+      color: #20b15a;
+    }
+  }
+}
+
+.connect-button {
+  --border-radius: 18px;
+  --background: #3d4652;
+  --background-activated: #2f3741;
+  --background-focused: #3d4652;
+  --background-hover: #3d4652;
+  --color: #ffffff;
+
+  height: 52px;
+  font-weight: 700;
+}
+
+.connect-button .connect-label,
+.connect-button .connect-icon {
+  color: #ffffff !important;
+}
+
+.control-card {
+  min-height: unset;
+}
+
+.gamepad-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "steering throttle"
+    "actions actions";
+  gap: 20px;
+  align-items: stretch;
+}
+
+.gamepad-layout.reversed {
+  grid-template-areas:
+    "throttle steering"
+    "actions actions";
+}
+
+.steering-pad {
+  grid-area: steering;
+}
+
+.throttle-pad {
+  grid-area: throttle;
+}
+
+.steering-pad,
+.throttle-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  h3 {
+    margin: 0;
+    color: #333b46;
+    font-size: 17px;
+    font-weight: 900;
+    text-align: center;
+  }
+}
+
+.horizontal-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  height: 100%;
+}
+
+.throttle-pad {
+  .pad-btn {
+    flex: 1;
+  }
+}
+
+.pad-btn {
+  min-height: 118px;
+  border: 0;
+  border-radius: 28px;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 15px;
+  box-shadow: 0 12px 24px rgba(35, 45, 58, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease,
+    filter 90ms ease;
+
+  ion-icon {
+    font-size: 34px;
+    color: #ffffff;
+  }
+
+  span {
+    color: #ffffff;
+  }
+
+  &:active,
+  &.active {
+    transform: scale(0.95);
+    box-shadow: 0 5px 12px rgba(35, 45, 58, 0.25);
+    filter: brightness(0.9);
+  }
+}
+
+.direction-btn {
+  background: linear-gradient(135deg, #2f80ed, #1e5fbf);
+}
+
+.accelerate {
+  background: linear-gradient(135deg, #1f9d55, #157347);
+}
+
+.reverse {
+  background: linear-gradient(135deg, #56616f, #38414c);
+}
+
+.control-actions {
+  grid-area: actions;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.relocate-btn,
+.stop-wide-btn {
+  height: 72px;
+  border: 0;
+  border-radius: 24px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease,
+    filter 90ms ease;
+
+  ion-icon {
+    font-size: 26px;
+  }
+
+  &:active {
+    transform: scale(0.96);
+    filter: brightness(0.92);
+  }
+}
+
+.relocate-btn {
+  background: #eef1f5;
+  color: #3d4652;
+  box-shadow: 0 8px 18px rgba(35, 45, 58, 0.12);
+
+  ion-icon,
+  span {
+    color: #3d4652;
+  }
+}
+
+.stop-wide-btn {
+  background: linear-gradient(135deg, #ff5b5b, #c92a2a);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(201, 42, 42, 0.32);
+
+  ion-icon,
+  span {
+    color: #ffffff;
+  }
+}
+
+@media (max-width: 600px) {
+  .control-card {
+    padding: 22px;
+  }
+
+  .gamepad-layout {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "steering throttle"
+      "actions actions";
+    gap: 16px;
+  }
+
+  .gamepad-layout.reversed {
+    grid-template-areas:
+      "throttle steering"
+      "actions actions";
+  }
+
+  .horizontal-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .pad-btn {
+    min-height: 96px;
+    border-radius: 24px;
+
+    ion-icon {
+      font-size: 32px;
+    }
+
+    span {
+      font-size: 14px;
+    }
+  }
+
+  .control-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .relocate-btn,
+  .stop-wide-btn {
+    height: 64px;
+    border-radius: 22px;
+  }
+}
+
+.power-mode-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.power-mode-btn {
+  height: 56px;
+  border: 0;
+  border-radius: 18px;
+  background: #eef1f5;
+  color: #3d4652;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease,
+    background 100ms ease;
+
+  ion-icon,
+  span {
+    color: #3d4652;
+  }
+
+  ion-icon {
+    font-size: 22px;
+  }
+
+  &.active {
+    background: linear-gradient(135deg, #1f9d55, #157347);
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(31, 157, 85, 0.28);
+
+    ion-icon,
+    span {
+      color: #ffffff;
+    }
+  }
+
+  &.sport.active {
+    background: linear-gradient(135deg, #ff8a00, #e03131);
+    box-shadow: 0 10px 22px rgba(224, 49, 49, 0.28);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.analog-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "steering throttle"
+    "actions actions";
+  gap: 18px;
+}
+
+.analog-layout.reversed {
+  grid-template-areas:
+    "throttle steering"
+    "actions actions";
+}
+
+.analog-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    color: #333b46;
+    font-size: 17px;
+    font-weight: 900;
+    text-align: center;
+  }
+}
+
+.steering-panel {
+  grid-area: steering;
+}
+
+.throttle-panel {
+  grid-area: throttle;
+}
+
+.analog-track {
+  position: relative;
+  height: 260px;
+  border-radius: 32px;
+  background: #f3f5f8;
+  box-shadow:
+    inset 0 2px 8px rgba(26, 33, 43, 0.08),
+    0 10px 24px rgba(26, 33, 43, 0.10);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.steering-track {
+  height: 170px;
+}
+
+.throttle-track {
+  height: 260px;
+}
+
+.axis-line {
+  position: absolute;
+  background: rgba(61, 70, 82, 0.22);
+  border-radius: 999px;
+
+  &.horizontal {
+    left: 34px;
+    right: 34px;
+    top: 50%;
+    height: 8px;
+    transform: translateY(-50%);
+  }
+
+  &.vertical {
+    top: 34px;
+    bottom: 34px;
+    left: 50%;
+    width: 8px;
+    transform: translateX(-50%);
+  }
+}
+
+.axis-label {
+  position: absolute;
+  color: #7d8794;
+  font-size: 12px;
+  font-weight: 900;
+  pointer-events: none;
+
+  &.left {
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &.right {
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &.center {
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+  }
+
+  &.top {
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  &.middle {
+    top: 50%;
+    right: 18px;
+    transform: translateY(-50%);
+  }
+
+  &.bottom {
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.analog-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 12px 26px rgba(26, 33, 43, 0.28),
+    inset 0 2px 4px rgba(255, 255, 255, 0.25);
+  transition: transform 80ms ease;
+  pointer-events: none;
+}
+
+.steering-knob {
+  background: linear-gradient(135deg, #2f80ed, #1e5fbf);
+}
+
+.throttle-knob {
+  background: linear-gradient(135deg, #1f9d55, #157347);
+}
+
+.control-actions {
+  grid-area: actions;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.relocate-btn,
+.stop-wide-btn {
+  height: 68px;
+  border: 0;
+  border-radius: 24px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease,
+    filter 90ms ease;
+
+  ion-icon {
+    font-size: 26px;
+  }
+
+  &:active {
+    transform: scale(0.96);
+    filter: brightness(0.92);
+  }
+}
+
+.relocate-btn {
+  background: #eef1f5;
+  color: #3d4652;
+  box-shadow: 0 8px 18px rgba(35, 45, 58, 0.12);
+
+  ion-icon,
+  span {
+    color: #3d4652;
+  }
+}
+
+.stop-wide-btn {
+  background: linear-gradient(135deg, #ff5b5b, #c92a2a);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(201, 42, 42, 0.32);
+
+  ion-icon,
+  span {
+    color: #ffffff;
+  }
+}
+
+@media (max-width: 600px) {
+  .power-mode-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .analog-layout {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "steering throttle"
+      "actions actions";
+    gap: 16px;
+  }
+
+  .analog-layout.reversed {
+    grid-template-areas:
+      "throttle steering"
+      "actions actions";
+  }
+
+  .steering-track,
+  .throttle-track {
+    height: 250px;
+  }
+
+  .analog-knob {
+    width: 74px;
+    height: 74px;
+    font-size: 16px;
+  }
+
+  .control-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .relocate-btn,
+  .stop-wide-btn {
+    height: 64px;
+    border-radius: 22px;
+  }
+}

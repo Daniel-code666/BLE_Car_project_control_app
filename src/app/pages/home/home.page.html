@@ -1,0 +1,119 @@
+<ion-content class="control-page">
+
+    <header class="app-banner">
+        <div class="banner-content">
+            <ion-icon name="car-sport"></ion-icon>
+            <div>
+                <h1>Nikko BLE Control</h1>
+                <p>Bluetooth Low Energy Controller</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-content">
+
+        <section class="card connection-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <ion-icon name="bluetooth"></ion-icon>
+                    <div>
+                        <h2>Conexión BLE</h2>
+                        <p>ESP32-C3 / Nikko Control</p>
+                    </div>
+                </div>
+
+                <div class="status-pill" [class.connected]="connectionStatus === 'Conectado'">
+                    <ion-icon name="radio-button-on"></ion-icon>
+                    <span>{{ connectionStatus }}</span>
+                </div>
+            </div>
+
+            <ion-button expand="block" class="connect-button" (click)="connect()">
+                <ion-icon class="connect-icon" slot="start" name="bluetooth"></ion-icon>
+                <span class="connect-label">Conectar dispositivo</span>
+            </ion-button>
+        </section>
+
+        <section class="card control-card">
+            <div class="section-header compact">
+                <div class="section-title">
+                    <ion-icon name="car-sport"></ion-icon>
+                    <div>
+                        <h2>Control de movimiento</h2>
+                        <p>Último comando: {{ lastCommand }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="power-mode-row">
+                <button class="power-mode-btn" [class.active]="powerMode === 'normal'" (click)="setPowerMode('normal')">
+                    <ion-icon name="leaf"></ion-icon>
+                    <span>Modo normal</span>
+                </button>
+
+                <button class="power-mode-btn sport" [class.active]="powerMode === 'sport'"
+                    (click)="setPowerMode('sport')">
+                    <ion-icon name="flash"></ion-icon>
+                    <span>Modo Sport</span>
+                </button>
+            </div>
+
+            <div class="analog-layout" [class.reversed]="controlsReversed">
+
+                <div class="analog-panel steering-panel">
+                    <h3>Dirección</h3>
+
+                    <div class="analog-track steering-track" (pointerdown)="startSteering($event)"
+                        (pointermove)="moveSteering($event)" (pointerup)="endSteering($event)"
+                        (pointercancel)="endSteering($event)" (pointerleave)="endSteering($event)"
+                        (contextmenu)="$event.preventDefault()">
+                        <div class="axis-line horizontal"></div>
+
+                        <span class="axis-label left">Izq</span>
+                        <span class="axis-label center">0</span>
+                        <span class="axis-label right">Der</span>
+
+                        <div class="analog-knob steering-knob" [style.transform]="getSteeringKnobPosition()">
+                            {{ steeringValue }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analog-panel throttle-panel">
+                    <h3>Velocidad</h3>
+
+                    <div class="analog-track throttle-track" (pointerdown)="startThrottle($event)"
+                        (pointermove)="moveThrottle($event)" (pointerup)="endThrottle($event)"
+                        (pointercancel)="endThrottle($event)" (pointerleave)="endThrottle($event)"
+                        (contextmenu)="$event.preventDefault()">
+                        <div class="axis-line vertical"></div>
+
+                        <span class="axis-label top">100</span>
+                        <span class="axis-label middle">0</span>
+                        <span class="axis-label bottom">-100</span>
+
+                        <div class="analog-knob throttle-knob" [style.transform]="getThrottleKnobPosition()">
+                            {{ throttleValue }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-actions">
+                    <button class="relocate-btn" (click)="toggleControlsPosition()">
+                        <ion-icon name="swap-horizontal"></ion-icon>
+                        <span>Reubicar</span>
+                    </button>
+
+                    <button class="stop-wide-btn" (pointerdown)="stopAll($event)"
+                        (contextmenu)="$event.preventDefault()">
+                        <ion-icon name="stop-circle"></ion-icon>
+                        <span>STOP</span>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+</ion-content>

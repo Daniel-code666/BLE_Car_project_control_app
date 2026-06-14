@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'carrito-control',
+  appId: 'com.nikko.blecontrol',
+  appName: 'Nikko BLE Control',
   webDir: 'www'
 };
 

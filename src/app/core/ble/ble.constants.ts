@@ -1,0 +1,5 @@
+export const BLE_DEVICE_NAME_PREFIX = 'Carrito';
+
+export const BLE_SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
+
+export const BLE_CHARACTERISTIC_UUID = 'abcd1234-1234-1234-1234-abcdef123456';
