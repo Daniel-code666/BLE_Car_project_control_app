@@ -18,6 +18,7 @@ interface ControlState {
   powerMode: PowerMode;
   throttle: number;
   steering: number;
+  brake: boolean;
 }
 
 @Component({
@@ -34,6 +35,7 @@ interface ControlState {
 export class HomePage {
   connectionStatus = 'Desconectado';
   lastCommand = 'Sin comandos';
+  lastPayload = 'Sin datos';
 
   controlsReversed = false;
   powerMode: PowerMode = 'normal';
@@ -41,9 +43,14 @@ export class HomePage {
   throttleValue = 0;
   steeringValue = 0;
 
+  brakeActive = false;
+
+  maxOffset = 72;  
+
   private draggingThrottle = false;
   private draggingSteering = false;
-
+  private lasEmittedPayload = '';
+  
   constructor() {
     addIcons({
       bluetooth,
@@ -135,7 +142,7 @@ export class HomePage {
      *    0  => centro
      * -100  => abajo
      */
-    const maxOffset = 72;
+    const maxOffset = this.maxOffset;
     const offset = -(this.throttleValue / 100) * maxOffset;
 
     return `translate(-50%, calc(-50% + ${offset}px))`;
@@ -148,10 +155,31 @@ export class HomePage {
      *    0 => centro
      *  100 => derecha
      */
-    const maxOffset = 72;
+    const maxOffset = this.maxOffset;
     const offset = (this.steeringValue / 100) * maxOffset;
 
     return `translate(calc(-50% + ${offset}px), -50%)`;
+  }
+
+  startBrake(event?: Event): void {
+    event?.preventDefault();
+
+    this.draggingThrottle = false;
+    this.draggingSteering = false;
+
+    this.throttleValue = 0;
+    this.steeringValue = 0;
+    this.brakeActive = true;
+
+    this.emitControlState();
+  }
+
+  endBrake(event?: Event): void {
+    event?.preventDefault();
+
+    this.brakeActive = false;
+
+    this.emitControlState();
   }
 
   private updateThrottle(event: PointerEvent): void {
@@ -187,15 +215,19 @@ export class HomePage {
   }
 
   private emitControlState(): void {
-    const state: ControlState = {
-      powerMode: this.powerMode,
-      throttle: this.throttleValue,
-      steering: this.steeringValue
-    };
+    const state = this.getCurrentControlState();
+
+    const payload = this.serializeControlState(state);
 
     this.lastCommand = this.getReadableState(state);
+    this.lastPayload = payload;
+
+    if (payload == this.lasEmittedPayload) {
+      return;
+    }
 
     console.log('Estado control:', state);
+    console.log('Payload ESP32', payload);
 
     /**
      * Más adelante esto se enviará por BLE.
@@ -209,35 +241,56 @@ export class HomePage {
      */
   }
 
+  private getCurrentControlState(): ControlState {
+    return {
+      powerMode: this.powerMode,
+      throttle: this.throttleValue,
+      steering: this.steeringValue,
+      brake: this.brakeActive
+    }
+  }
+
   private getReadableState(state: ControlState): string {
+    var pwdMode = state.powerMode === 'sport' ? 'S' : 'N';
+
+    if (state.brake) {
+      return `Freno ${state.brake}`
+    }
+
     if (state.throttle === 0 && state.steering === 0) {
-      return `Neutro / ${state.powerMode}`;
+      return `Neutro / ${pwdMode}`;
     }
 
     const parts: string[] = [];
 
     if (state.throttle > 0) {
-      parts.push(`Acelerar ${state.throttle}%`);
+      parts.push(`Acc ${state.throttle}%`);
     }
 
     if (state.throttle < 0) {
-      parts.push(`Retroceder ${Math.abs(state.throttle)}%`);
+      parts.push(`Ret ${Math.abs(state.throttle)}%`);
     }
 
     if (state.steering < 0) {
-      parts.push(`Izquierda ${Math.abs(state.steering)}%`);
+      parts.push(`Izq ${Math.abs(state.steering)}%`);
     }
 
     if (state.steering > 0) {
-      parts.push(`Derecha ${state.steering}%`);
+      parts.push(`Der ${state.steering}%`);
     }
 
-    parts.push(state.powerMode);
+    parts.push(pwdMode);
 
     return parts.join(' + ');
   }
 
   private clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
+  }
+
+  private serializeControlState(state: ControlState): string {
+    const mode = state.powerMode === 'sport' ? 'S' : 'N';
+    const brake = state.brake ? 1 : 0;
+    return `${mode}, ${state.throttle}, ${state.steering}, ${brake}`;
   }
 }

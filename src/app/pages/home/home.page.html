@@ -38,9 +38,10 @@
             <div class="section-header compact">
                 <div class="section-title">
                     <ion-icon name="car-sport"></ion-icon>
-                    <div>
+                    <div class="control-status-info">
                         <h2>Control de movimiento</h2>
                         <p>Último comando: {{ lastCommand }}</p>
+                        <p>Payload: {{ lastPayload }}</p>
                     </div>
                 </div>
             </div>
@@ -104,8 +105,9 @@
                         <span>Reubicar</span>
                     </button>
 
-                    <button class="stop-wide-btn" (pointerdown)="stopAll($event)"
-                        (contextmenu)="$event.preventDefault()">
+                    <button class="stop-wide-btn" [class.active]="brakeActive" (pointerdown)="startBrake($event)"
+                        (pointerup)="endBrake($event)" (pointercancel)="endBrake($event)"
+                        (pointerleave)="endBrake($event)" (contextmenu)="$event.preventDefault()">
                         <ion-icon name="stop-circle"></ion-icon>
                         <span>STOP</span>
                     </button>
