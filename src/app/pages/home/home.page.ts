@@ -5,6 +5,7 @@ import { BleService } from '../../core/ble/ble.service';
 import { CarConnectionState } from '../../core/car/car-state';
 import { ControlState } from '../../core/car/car-state';
 import { PowerMode } from '../../core/car/car-state';
+import { PAYLOAD_EMIT_INTERVAL_MS } from '../../core/ble/ble.constants';
 import {
   bluetooth,
   carSport,
@@ -48,6 +49,8 @@ export class HomePage {
   private draggingThrottle = false;
   private draggingSteering = false;
   private lasEmittedPayload = '';
+  private lastPayloadSentAt = 0;
+  private pendingPayloadTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private bleService: BleService) {
     addIcons({
@@ -248,9 +251,54 @@ export class HomePage {
     }
 
     console.log('Estado control:', state);
-    console.log('Payload ESP32', payload);
 
-    await this.bleService.writeValue(payload);
+    const mustSendInmmediatly = state.throttle == 0 || state.brake || state.steering == 0
+
+    this.sendPayloadWithThrottle(payload, mustSendInmmediatly)
+  }
+
+  private sendPayloadWithThrottle(payload: string, forceSend: boolean): void {
+    const now = Date.now();
+
+    const elapsed = now - this.lastPayloadSentAt;
+
+    if (forceSend || elapsed >= PAYLOAD_EMIT_INTERVAL_MS) {
+      this.clearPendingPayloadTimer();
+      this.sendPayload(payload)
+      return
+    }
+
+    this.clearPendingPayloadTimer();
+    const remainingTime = PAYLOAD_EMIT_INTERVAL_MS - elapsed
+
+    this.pendingPayloadTimer = setTimeout(() => {
+      this.sendPayload(payload)
+      this.pendingPayloadTimer = null
+    }, remainingTime)
+  }
+
+  private sendPayload(payload: string): void {
+    if (payload == this.lasEmittedPayload) {
+      return;
+    }
+
+    this.lasEmittedPayload = payload
+    this.lastPayloadSentAt = Date.now()
+
+    console.log('Payload ESP32', payload)
+
+    this.bleService.writeValue(payload).catch(e => {
+      console.log('Error: ', e)
+    })
+  }
+
+  private clearPendingPayloadTimer(): void {
+    if (!this.pendingPayloadTimer) {
+      return;
+    }
+
+    clearTimeout(this.pendingPayloadTimer);
+    this.pendingPayloadTimer = null;
   }
 
   private getCurrentControlState(): ControlState {
@@ -306,5 +354,5 @@ export class HomePage {
     return `${mode}, ${state.throttle}, ${state.steering}, ${brake}`;
   }
 
-  
+
 }

@@ -3,3 +3,5 @@ export const BLE_DEVICE_NAME_PREFIX = 'BLE_Remote_Car';
 export const BLE_SERVICE_UUID = '65215951-565f-4530-ae33-166245c668cf';
 
 export const BLE_CHARACTERISTIC_UUID = '3986086c-190f-4de8-8164-24abdf042717';
+
+export const PAYLOAD_EMIT_INTERVAL_MS = 50;
