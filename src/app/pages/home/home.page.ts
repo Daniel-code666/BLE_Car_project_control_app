@@ -230,7 +230,7 @@ export class HomePage {
     this.emitControlState();
   }
 
-  private emitControlState(): void {
+  private async emitControlState(): Promise<void> {
     const state = this.getCurrentControlState();
 
     const payload = this.serializeControlState(state);
@@ -250,16 +250,7 @@ export class HomePage {
     console.log('Estado control:', state);
     console.log('Payload ESP32', payload);
 
-    /**
-     * Más adelante esto se enviará por BLE.
-     *
-     * Ejemplo recomendado para ESP32:
-     * {"p":"sport","t":75,"s":-40}
-     *
-     * p = power mode
-     * t = throttle
-     * s = steering
-     */
+    await this.bleService.writeValue(payload);
   }
 
   private getCurrentControlState(): ControlState {
