@@ -241,8 +241,14 @@ export class HomePage {
     if (payload == this.lasEmittedPayload) {
       return;
     }
+    this.lastPayload = payload;
+
+    if (payload == this.lasEmittedPayload) {
+      return;
+    }
 
     console.log('Estado control:', state);
+    console.log('Payload ESP32', payload);
     console.log('Payload ESP32', payload);
 
     /**
@@ -273,7 +279,14 @@ export class HomePage {
       return `Freno ${state.brake}`
     }
 
+    var pwdMode = state.powerMode === 'sport' ? 'S' : 'N';
+
+    if (state.brake) {
+      return `Freno ${state.brake}`
+    }
+
     if (state.throttle === 0 && state.steering === 0) {
+      return `Neutro / ${pwdMode}`;
       return `Neutro / ${pwdMode}`;
     }
 
@@ -281,20 +294,25 @@ export class HomePage {
 
     if (state.throttle > 0) {
       parts.push(`Acc ${state.throttle}%`);
+      parts.push(`Acc ${state.throttle}%`);
     }
 
     if (state.throttle < 0) {
+      parts.push(`Ret ${Math.abs(state.throttle)}%`);
       parts.push(`Ret ${Math.abs(state.throttle)}%`);
     }
 
     if (state.steering < 0) {
       parts.push(`Izq ${Math.abs(state.steering)}%`);
+      parts.push(`Izq ${Math.abs(state.steering)}%`);
     }
 
     if (state.steering > 0) {
       parts.push(`Der ${state.steering}%`);
+      parts.push(`Der ${state.steering}%`);
     }
 
+    parts.push(pwdMode);
     parts.push(pwdMode);
 
     return parts.join(' + ');
