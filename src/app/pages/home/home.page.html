@@ -33,9 +33,9 @@
                 <span class="connect-label">Conectar dispositivo</span>
             </ion-button>
 
-            <ion-button [disabled]="DisableButtonByConnectionStatus()" expand="block" class="connect-button" (click)="disconnect()">
-                <ion-icon class="connect-icon" slot="start" name="bluetooth"></ion-icon>
-                <span class="connect-label">Desconectar dispositivo</span>
+            <ion-button [disabled]="DisableButtonByConnectionStatus()" expand="block" class="disconnect-button" (click)="disconnect()">
+                <ion-icon class="disconnect-icon" slot="start" name="bluetooth"></ion-icon>
+                <span class="disconnect-label">Desconectar dispositivo</span>
             </ion-button>
         </section>
 
