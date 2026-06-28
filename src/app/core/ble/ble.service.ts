@@ -12,6 +12,8 @@ import {
 export class BleService {
     private connectedDevice: BleDevice | null = null;
 
+    private isWriting = false;
+
     async initialize(): Promise<void> {
         await BleClient.initialize();
     }
@@ -50,14 +52,18 @@ export class BleService {
 
         const data = this.encodeText(payload)
 
-        await BleClient.write(
-            this.connectedDevice.deviceId,
-            BLE_SERVICE_UUID,
-            BLE_CHARACTERISTIC_UUID,
-            data
-        )
+        try {
+            await BleClient.writeWithoutResponse(
+                this.connectedDevice.deviceId,
+                BLE_SERVICE_UUID,
+                BLE_CHARACTERISTIC_UUID,
+                data
+            )
 
-        console.log('Payload BLE enviado', payload)
+            console.log('Payload BLE enviado', payload)
+        } finally {
+            this.isWriting = false;
+        }
     }
 
     isConnected(): boolean {

@@ -2,9 +2,7 @@ import { Component } from '@angular/core';
 import { IonButton, IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { BleService } from '../../core/ble/ble.service';
-import { CarConnectionState } from '../../core/car/car-state';
-import { ControlState } from '../../core/car/car-state';
-import { PowerMode } from '../../core/car/car-state';
+import { CarConnectionState, ControlState, PowerMode } from '../../core/car/car-state';
 import { PAYLOAD_EMIT_INTERVAL_MS } from '../../core/ble/ble.constants';
 import {
   bluetooth,
@@ -41,18 +39,18 @@ export class HomePage {
 
   throttleValue = 0;
   steeringValue = 0;
-
   brakeActive = false;
 
   maxOffset = 72;
 
   private draggingThrottle = false;
   private draggingSteering = false;
-  private lasEmittedPayload = '';
+
+  private lastEmittedPayload = '';
   private lastPayloadSentAt = 0;
   private pendingPayloadTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private bleService: BleService) {
+  constructor(private readonly bleService: BleService) {
     addIcons({
       bluetooth,
       carSport,
@@ -68,10 +66,12 @@ export class HomePage {
   async connect(): Promise<void> {
     try {
       this.connectionStatus = CarConnectionState.Connecting;
+
       await this.bleService.connect();
+
       this.connectionStatus = CarConnectionState.Connected;
     } catch (error) {
-      console.error('Error al conectar: ', error)
+      console.error('Error al conectar:', error);
       this.connectionStatus = CarConnectionState.Error;
     }
   }
@@ -79,10 +79,15 @@ export class HomePage {
   async disconnect(): Promise<void> {
     try {
       this.connectionStatus = CarConnectionState.Disconnecting;
+
+      this.clearPendingPayloadTimer();
+
       await this.bleService.disconnect();
+
       this.connectionStatus = CarConnectionState.Disconnected;
+      this.lastEmittedPayload = '';
     } catch (error) {
-      console.error('Error al desconectar: ', error)
+      console.error('Error al desconectar:', error);
       this.connectionStatus = CarConnectionState.Error;
     }
   }
@@ -114,7 +119,8 @@ export class HomePage {
 
     this.draggingThrottle = false;
     this.throttleValue = 0;
-    this.emitControlState();
+
+    this.emitControlState(true);
   }
 
   startSteering(event: PointerEvent): void {
@@ -135,7 +141,8 @@ export class HomePage {
 
     this.draggingSteering = false;
     this.steeringValue = 0;
-    this.emitControlState();
+
+    this.emitControlState(true);
   }
 
   stopAll(event?: Event): void {
@@ -146,34 +153,9 @@ export class HomePage {
 
     this.throttleValue = 0;
     this.steeringValue = 0;
+    this.brakeActive = false;
 
-    this.emitControlState();
-  }
-
-  getThrottleKnobPosition(): string {
-    /**
-     * throttleValue:
-     *  100  => arriba
-     *    0  => centro
-     * -100  => abajo
-     */
-    const maxOffset = this.maxOffset;
-    const offset = -(this.throttleValue / 100) * maxOffset;
-
-    return `translate(-50%, calc(-50% + ${offset}px))`;
-  }
-
-  getSteeringKnobPosition(): string {
-    /**
-     * steeringValue:
-     * -100 => izquierda
-     *    0 => centro
-     *  100 => derecha
-     */
-    const maxOffset = this.maxOffset;
-    const offset = (this.steeringValue / 100) * maxOffset;
-
-    return `translate(calc(-50% + ${offset}px), -50%)`;
+    this.emitControlState(true);
   }
 
   startBrake(event?: Event): void {
@@ -186,7 +168,7 @@ export class HomePage {
     this.steeringValue = 0;
     this.brakeActive = true;
 
-    this.emitControlState();
+    this.emitControlState(true);
   }
 
   endBrake(event?: Event): void {
@@ -194,11 +176,25 @@ export class HomePage {
 
     this.brakeActive = false;
 
-    this.emitControlState();
+    this.emitControlState(true);
+  }
+
+  getThrottleKnobPosition(): string {
+    const offset = -(this.throttleValue / 100) * this.maxOffset;
+
+    return `translate(-50%, calc(-50% + ${offset}px))`;
+  }
+
+  getSteeringKnobPosition(): string {
+    const offset = (this.steeringValue / 100) * this.maxOffset;
+
+    return `translate(calc(-50% + ${offset}px), -50%)`;
   }
 
   DisableButtonByConnectionStatus(): boolean {
-    return this.connectionStatus !== CarConnectionState.Connected && this.connectionStatus !== CarConnectionState.Connecting && this.connectionStatus !== CarConnectionState.Disconnecting;
+    return this.connectionStatus !== CarConnectionState.Connected &&
+      this.connectionStatus !== CarConnectionState.Connecting &&
+      this.connectionStatus !== CarConnectionState.Disconnecting;
   }
 
   private updateThrottle(event: PointerEvent): void {
@@ -214,6 +210,7 @@ export class HomePage {
     const normalized = this.clamp(-deltaY / half, -1, 1);
 
     this.throttleValue = Math.round(normalized * 100);
+
     this.emitControlState();
   }
 
@@ -230,66 +227,67 @@ export class HomePage {
     const normalized = this.clamp(deltaX / half, -1, 1);
 
     this.steeringValue = Math.round(normalized * 100);
+
     this.emitControlState();
   }
 
-  private async emitControlState(): Promise<void> {
+  private emitControlState(forceSend = false): void {
     const state = this.getCurrentControlState();
-
     const payload = this.serializeControlState(state);
 
     this.lastCommand = this.getReadableState(state);
     this.lastPayload = payload;
 
-    if (payload == this.lasEmittedPayload) {
-      return;
-    }
-    this.lastPayload = payload;
-
-    if (payload == this.lasEmittedPayload) {
+    if (payload === this.lastEmittedPayload) {
       return;
     }
 
-    console.log('Estado control:', state);
+    const isNeutral = state.throttle === 0 && state.steering === 0 && !state.brake;
+    const mustSendImmediately = forceSend || state.brake || isNeutral;
 
-    const mustSendInmmediatly = state.throttle == 0 || state.brake || state.steering == 0
-
-    this.sendPayloadWithThrottle(payload, mustSendInmmediatly)
+    this.sendPayloadWithThrottle(payload, mustSendImmediately);
   }
 
   private sendPayloadWithThrottle(payload: string, forceSend: boolean): void {
     const now = Date.now();
-
     const elapsed = now - this.lastPayloadSentAt;
 
     if (forceSend || elapsed >= PAYLOAD_EMIT_INTERVAL_MS) {
       this.clearPendingPayloadTimer();
-      this.sendPayload(payload)
-      return
-    }
-
-    this.clearPendingPayloadTimer();
-    const remainingTime = PAYLOAD_EMIT_INTERVAL_MS - elapsed
-
-    this.pendingPayloadTimer = setTimeout(() => {
-      this.sendPayload(payload)
-      this.pendingPayloadTimer = null
-    }, remainingTime)
-  }
-
-  private sendPayload(payload: string): void {
-    if (payload == this.lasEmittedPayload) {
+      this.sendPayload(payload);
       return;
     }
 
-    this.lasEmittedPayload = payload
-    this.lastPayloadSentAt = Date.now()
+    this.clearPendingPayloadTimer();
 
-    console.log('Payload ESP32', payload)
+    const remainingTime = PAYLOAD_EMIT_INTERVAL_MS - elapsed;
 
-    this.bleService.writeValue(payload).catch(e => {
-      console.log('Error: ', e)
-    })
+    this.pendingPayloadTimer = setTimeout(() => {
+      const currentState = this.getCurrentControlState();
+      const currentPayload = this.serializeControlState(currentState);
+
+      this.sendPayload(currentPayload);
+      this.pendingPayloadTimer = null;
+    }, remainingTime);
+  }
+
+  private sendPayload(payload: string): void {
+    if (payload === this.lastEmittedPayload) {
+      return;
+    }
+
+    if (this.connectionStatus !== CarConnectionState.Connected) {
+      return;
+    }
+
+    this.lastEmittedPayload = payload;
+    this.lastPayloadSentAt = Date.now();
+
+    console.log('Payload ESP32:', payload);
+
+    this.bleService.writeValue(payload).catch(error => {
+      console.error('Error enviando payload BLE:', error);
+    });
   }
 
   private clearPendingPayloadTimer(): void {
@@ -307,18 +305,18 @@ export class HomePage {
       throttle: this.throttleValue,
       steering: this.steeringValue,
       brake: this.brakeActive
-    }
+    };
   }
 
   private getReadableState(state: ControlState): string {
-    var pwdMode = state.powerMode === 'sport' ? 'S' : 'N';
+    const powerMode = state.powerMode === PowerMode.Sport ? 'S' : 'N';
 
     if (state.brake) {
-      return `Freno ${state.brake}`
+      return `Freno activo / ${powerMode}`;
     }
 
     if (state.throttle === 0 && state.steering === 0) {
-      return `Neutro / ${pwdMode}`;
+      return `Neutro / ${powerMode}`;
     }
 
     const parts: string[] = [];
@@ -339,7 +337,7 @@ export class HomePage {
       parts.push(`Der ${state.steering}%`);
     }
 
-    parts.push(pwdMode);
+    parts.push(powerMode);
 
     return parts.join(' + ');
   }
@@ -349,10 +347,9 @@ export class HomePage {
   }
 
   private serializeControlState(state: ControlState): string {
-    const mode = state.powerMode === 'sport' ? 'S' : 'N';
+    const mode = state.powerMode === PowerMode.Sport ? 'S' : 'N';
     const brake = state.brake ? 1 : 0;
-    return `${mode}, ${state.throttle}, ${state.steering}, ${brake}`;
+
+    return `${mode},${state.throttle},${state.steering},${brake}`;
   }
-
-
 }
